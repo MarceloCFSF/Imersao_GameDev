@@ -1,38 +1,59 @@
-class Personagem {
-    constructor(imagem, tamanho, larguraBase, alturaBase, frames, posicaox, posicaoy) {
-        this.imagem = imagem
-        this.x = 0
-        this.y = 0
-        this.frame = sqrt(frames) - 1
-        this.largura = larguraBase * tamanho
-        this.altura = alturaBase * tamanho
-        this.larguraBase = larguraBase
-        this.alturaBase = alturaBase
-        this.posicaox = posicaox
-        this.posicaoy = posicaoy
+class Personagem extends Animacao {
+    constructor(imagem, tamanho, larguraBase, alturaBase, frames, framex, framey, posicaox, posicaoy) {
+        super(imagem, tamanho, larguraBase, alturaBase, frames, framex, framey, posicaox, posicaoy)
+
+        this.ybase = this.posicaoy
+
+        this.velocidadeDoPulo = 0
+        this.alturaDoPulo = - 35
+        this.gravidade = 3
+        this.pulo = 0
+        this.estainvencivel = false
+    }
+    pula() {
+        if (this.pulo < 2) { 
+            this.velocidadeDoPulo = this.alturaDoPulo
+            this.pulo ++
+        }
     }
 
-    exibe() {
-        const posicaoy = height - this.altura - this.posicaoy
-        image(this.imagem, this.posicaox, posicaoy, this.largura, this.altura, this.x, this.y, this.larguraBase, this.alturaBase)
+    aplicaGravidade() {
+        this.posicaoy = this.posicaoy + this.velocidadeDoPulo
+        this.velocidadeDoPulo = this.velocidadeDoPulo + this.gravidade
 
-        this.anima()
+        if(this.posicaoy > this.ybase) {
+            this.posicaoy = this.ybase
+            this.pulo = 0
+        }
     }
 
-    anima() {
-        const maxLargura = this.frame * this.larguraBase
-        const maxAltura = this.frame *this.alturaBase
+    invencivel() {
+        this.estainvencivel = true
+        setTimeout(() => {
+            this.estainvencivel = false
+        }, 1000)
+    }
 
-        if (this.x >= maxLargura) {
-            this.x = 0
-            if (this.y >= maxAltura) {
-                this.y = 0
-            }
-            else 
-                this.y = this.y + this.alturaBase
+    colisao(inimigo) {
+        if(this.estainvencivel) {
+            return false
         }
-        else {
-            this.x = this.x + this.larguraBase
-        }
+        noFill()
+        const precisaoT = 0.7
+        const precisaoP = 1
+        // rect(this.posicaox * precisaoP, this.posicaoy * precisaoP, this.largura * precisaoT, this.altura * precisaoT)
+        // rect(inimigo.posicaox * precisaoP, inimigo.posicaoy * precisaoP, inimigo.largura * precisaoT, inimigo.altura * precisaoT)
+        const colide = collideRectRect(
+            this.posicaox * precisaoP, 
+            this.posicaoy * precisaoP, 
+            this.largura * precisaoT,
+            this.altura * precisaoT,
+            inimigo.posicaox * precisaoP,
+            inimigo.posicaoy * precisaoP,
+            inimigo.largura * precisaoT,
+            inimigo.altura * precisaoT,
+        )
+
+        return colide
     }
 }
